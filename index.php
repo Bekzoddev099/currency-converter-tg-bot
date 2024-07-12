@@ -4,21 +4,11 @@ declare(strict_types=1);
 
 require 'vendor/autoload.php';
 
-use GuzzleHttp\Client;
+$update = json_decode(file_get_contents('php://input'));
 
-$token = "7430675498:AAFFHNpKebcZ-rvwTnsABXrDeAVzSpS5WBI";
+if (isset($update)) {
+    require 'bot.php';
+    return;
+}
 
-$tgApi = "https://api.telegram.org/bot$token/";
-
-$client = new Client(['base_uri' => $tgApi]);
-
-$response = $client->post( 'sendMessage', [
-    'form_params' => [
-        'chat_id' => "863518385",
-        'text' => 'HI!'
-    ]
-]);
-
-$json = $response->getBody()->getContents();
-
-print_r(json_decode($json, true));
+require 'view/dashboard.php';
