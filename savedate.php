@@ -12,9 +12,9 @@ class SaveUsersData
     public function __construct() 
     {
         $host = 'localhost';
-        $dbname = 'CurrencyConverterBot';
-        $username = 'foziljonvc';
-        $password = '1220';
+        $dbname = 'currency_converter';
+        $username = 'beko';
+        $password = '9999';
 
         $this->bot = new Currency();
 
@@ -30,23 +30,23 @@ class SaveUsersData
         }
     }
 
-    public function saveuser (int $user_chat_id, string $user_callback_data): void
+    public function saveuser (int $chat_id, string $callback_data): void
     {
-        $query = "INSERT INTO saveuser (user_chat_id, user_callback_data, user_data_time) VALUES (:user_chat_id, :user_callback_data, :user_data_time)";
+        $query = "INSERT INTO usersave (chat_id, callback_data, data_time) VALUES (:chat_id, :callback_data, :data_time)";
         $now = date('Y-m-d H:i:s');
 
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':user_chat_id', $user_chat_id);
-        $stmt->bindParam(':user_callback_data', $user_callback_data);
-        $stmt->bindParam(':user_data_time', $now);
+        $stmt->bindParam(':chat_id', $chat_id);
+        $stmt->bindParam(':callback_data', $callback_data);
+        $stmt->bindParam(':data_time', $now);
         $stmt->execute();
     }
 
-    public function getuser (float $amount, int $user_chat_id): string
+    public function getuser (float $amount, int $chat_id): string
     {
-        $query = "SELECT user_callback_data FROM saveuser WHERE user_chat_id = :user_chat_id ORDER BY user_data_time DESC LIMIT 1";
+        $query = "SELECT callback_data FROM usersave WHERE chat_id = :chat_id ORDER BY data_time DESC LIMIT 1";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':user_chat_id', $user_chat_id, PDO::PARAM_INT);
+        $stmt->bindParam('chat_id', $chat_id, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -54,7 +54,7 @@ class SaveUsersData
             return 'Error: No conversion data found.';
         }
 
-        $stateName = $result['user_callback_data'];
+        $stateName = $result['callback_data'];
         $toConverter = explode("2", $stateName);
 
         $response = $this->bot->getAmount($toConverter[1], $amount);
@@ -62,33 +62,33 @@ class SaveUsersData
         return sprintf("Converted amount: %.2f", $response);
     }
 
-    public function allusersinfo(int $user_chat_id, string $user_convertion_type, float $user_amount): void
+    public function allusersinfo(int $chat_id, string $convertion_type, float $user_amount): void
     {
-        $query = "INSERT INTO usersinfo (user_chat_id, user_convertion_type, user_amount, user_data_time) VALUES (:user_chat_id, :user_convertion_type, :user_amount, :user_data_time)";
+        $query = "INSERT INTO userinfo (chat_id, convertion_type, user_amount, data_time) VALUES (:chat_id, :convertion_type, :user_amount, :data_time)";
         $now = date('Y-m-d H:i:s');
 
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':user_chat_id', $user_chat_id);
-        $stmt->bindParam(':user_convertion_type', $user_convertion_type);
+        $stmt->bindParam(':chat_id', $chat_id);
+        $stmt->bindParam(':convertion_type', $convertion_type);
         $stmt->bindParam(':user_amount', $user_amount);
-        $stmt->bindParam(':user_data_time', $now);
+        $stmt->bindParam(':data_time', $now);
         $stmt->execute();
     }
 
-    public function sendConvertionType(int $user_chat_id): ?string
+    public function sendConvertionType(int $chat_id): ?string
     {
-        $query = "SELECT user_callback_data FROM saveuser WHERE user_chat_id = :user_chat_id ORDER BY user_data_time DESC LIMIT 1";
+        $query = "SELECT callback_data FROM usersave WHERE chat_id = :chat_id ORDER BY data_time DESC LIMIT 1";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':user_chat_id', $user_chat_id, PDO::PARAM_INT);
+        $stmt->bindParam(':chat_id', $chat_id, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $result['user_callback_data'] ?? null;
+        return $result['callback_data'] ?? null;
     }
 
     public function sendAllUsersInfo(): array
     {
-        $query = "SELECT * FROM usersinfo";
+        $query = "SELECT * FROM userinfo";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

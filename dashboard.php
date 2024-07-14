@@ -37,13 +37,13 @@ print_r($usersInfo, true);
                     <th scope="row"><?php 
                         echo $userInfo['id']; ?></th>
                     <td><?php 
-                        echo $userInfo['user_chat_id']; ?></td>
+                        echo $userInfo['chat_id']; ?></td>
                     <td><?php 
-                        echo $userInfo['user_convertion_type']; ?></td>
+                        echo $userInfo['convertion_type']; ?></td>
                     <td><?php  
                         echo $userInfo['user_amount']; ?></td>
                     <td><?php 
-                        echo $userInfo['user_data_time']; ?></td>
+                        echo $userInfo['data_time']; ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
